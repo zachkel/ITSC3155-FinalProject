@@ -1,13 +1,21 @@
 from datetime import datetime
+from decimal import Decimal
+from enum import Enum
 from typing import Optional
 from pydantic import BaseModel
 from .order_details import OrderDetail
 
-
+class OrderStatus(str, Enum):
+    pending = "pending"
+    completed = "completed"
+    in_route = "in-route"
+    cancelled = "cancelled"
 
 class OrderBase(BaseModel):
-    customer_name: str
-    description: Optional[str] = None
+    customer_id: int
+    tracking_number: str | None = None
+    order_status: OrderStatus
+    total_price: Decimal | None = None
 
 
 class OrderCreate(OrderBase):
@@ -15,12 +23,11 @@ class OrderCreate(OrderBase):
 
 
 class OrderUpdate(BaseModel):
-    customer_name: Optional[str] = None
-    description: Optional[str] = None
+    order_status: OrderStatus
 
 
 class Order(OrderBase):
-    id: int
+    order_id: int
     order_date: Optional[datetime] = None
     order_details: list[OrderDetail] = None
 

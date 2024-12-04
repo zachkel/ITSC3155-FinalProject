@@ -5,12 +5,14 @@ from .sandwiches import Sandwich
 
 
 class OrderDetailBase(BaseModel):
+    order_id: int
+    item_id: int
+    quantity: int
     amount: int
 
 
 class OrderDetailCreate(OrderDetailBase):
-    order_id: int
-    sandwich_id: int
+    pass
 
 class OrderDetailUpdate(BaseModel):
     order_id: Optional[int] = None
@@ -19,9 +21,7 @@ class OrderDetailUpdate(BaseModel):
 
 
 class OrderDetail(OrderDetailBase):
-    id: int
-    order_id: int
-    sandwich: Sandwich = None
+    order_detail_id: int
 
     class ConfigDict:
         from_attributes = True
