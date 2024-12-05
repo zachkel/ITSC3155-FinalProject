@@ -4,7 +4,10 @@ from ..dependencies.database import get_db
 from ..models import menu_items as models
 from ..schemas import menu_items as schemas
 
-router = APIRouter()
+router = APIRouter(
+    tags=['Menu Items'],
+    prefix="/menu_items"
+)
 
 @router.post('/menu-items/', response_model=schemas.MenuItem)
 def create_menu_item(item: schemas.MenuItemCreate, db: Session = Depends(get_db)):
