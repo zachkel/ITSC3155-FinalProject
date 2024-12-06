@@ -9,30 +9,35 @@ router = APIRouter(
     prefix="/menu_items"
 )
 
-@router.post('/menu-items/', response_model=schemas.MenuItem)
+@router.post('/', response_model=schemas.MenuItem)
 def create_menu_item(item: schemas.MenuItemCreate, db: Session = Depends(get_db)):
-    db_item = models.MenuItems(**item.dict())
-    db.add(db_item)
+    db_menu_item = models.MenuItems(**item.dict())
+    db.add(db_menu_item)
     db.commit()
-    db.refresh(db_item)
-    return db_item
+    db.refresh(db_menu_item)
+    return db_menu_item
 
-@router.put('/menu-items/{item_id}', response_model=schemas.MenuItem)
+@router.put('/{item_id}', response_model=schemas.MenuItem)
 def update_menu_item(item_id: int, item: schemas.MenuItemUpdate, db: Session = Depends(get_db)):
-    db_item = db.query(models.MenuItems).filter(models.MenuItems.id == item_id).first()
-    if db_item is None:
+    db_menu_item = db.query(models.MenuItems).filter(models.MenuItems.id == item_id).first()
+    if db_menu_item is None:
         raise HTTPException(status_code=404, detail='Menu item not found')
     for key, value in item.dict(exclude_unset=True).items():
-        setattr(db_item, key, value)
+        setattr(db_menu_item, key, value)
     db.commit()
-    db.refresh(db_item)
-    return db_item
+    db.refresh(db_menu_item)
+    return db_menu_item
 
-@router.delete('/menu-items/{item_id}', response_model=schemas.MenuItem)
+@router.delete('/{item_id}', response_model=schemas.MenuItem)
 def delete_menu_item(item_id: int, db: Session = Depends(get_db)):
-    db_item = db.query(models.MenuItems).filter(models.MenuItems.id == item_id).first()
-    if db_item is None:
+    db_menu_item = db.query(models.MenuItems).filter(models.MenuItems.id == item_id).first()
+    if db_menu_item is None:
         raise HTTPException(status_code=404, detail='Menu item not found')
-    db.delete(db_item)
+    db.delete(db_menu_item)
     db.commit()
-    return db_item
+    return db_menu_item
+
+@router.get('/search', response_model=list[schemas.MenuItem])
+def search_menu_items(q: str, db: Session = Depends(get_db)):
+    menu_items = db.query(models.MenuItems).filter(models.MenuItems.name.contains(q)).all()
+    return menu_items
