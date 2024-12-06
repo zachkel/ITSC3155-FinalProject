@@ -5,7 +5,6 @@ from ..dependencies.database import get_db
 from ..models import orders as models
 from ..models import menu_items as menu_items_models
 from ..models import order_details as order_details_models
-from ..models import resources as resources_models
 from ..schemas import orders as schemas
 from datetime import datetime
 
