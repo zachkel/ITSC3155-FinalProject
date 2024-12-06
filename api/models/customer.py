@@ -11,3 +11,7 @@ class Customer(Base):
     email = Column(String, unique=True, nullable=False)
     phone_number = Column(String, nullable=False)
     address = Column(String)
+
+    orders = relationship('Orders', back_populates='customer')
+    reviews = relationship('Reviews', back_populates='customer')
+    payments = relationship("Payment", back_populates="customer")
