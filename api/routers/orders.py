@@ -29,6 +29,9 @@ def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
 
         total_price += Decimal(str(menu_item.price)) * quantity
 
+    if order.order_type not in ["takeout", "delivery", "dine-in"]:
+        raise HTTPException(status_code=400, detail="Invalid order type")
+
     db_order = models.Orders(
         customer_id=order.customer_id,
         tracking_number=order.tracking_number,

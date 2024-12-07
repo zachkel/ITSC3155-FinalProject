@@ -14,6 +14,7 @@ class OrderBase(BaseModel):
     tracking_number: str | None = None
     order_status: str
     items: list[OrderList]
+    order_type: str
 
 class OrderCreate(OrderBase):
     pass
