@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -16,28 +18,32 @@ router = APIRouter(
 
 @router.post('/', response_model=schemas.Order)
 def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
+    total_price = Decimal('0.00')
+
     for item in order.items:
         menu_item = db.query(menu_items_models.MenuItems).filter(menu_items_models.MenuItems.id == item.item_id).first()
         if menu_item is None:
             raise HTTPException(status_code=404, detail=f'Menu item with ID {item.item_id} not found')
 
-        for ingredient in menu_item.ingredients:
-            if ingredient.stock < item.quantity:
-                raise HTTPException(status_code=400, detail=f'Insufficient stock for ingredient {ingredient.name}')
+        total_price += Decimal(str(menu_item.price)) * item.quantity
 
-    db_order = models.Orders(**order.dict(exclude={'items'}))
+    db_order = models.Orders(
+        customer_id=order.customer_id,
+        tracking_number=order.tracking_number,
+        order_status=order.order_status,
+        total_price=total_price
+    )
     db.add(db_order)
     db.commit()
     db.refresh(db_order)
 
     for item in order.items:
-        db_order_details = order_details_models.OrderDetail(order_id=db_order.id, menu_item_id=item.item_id, quantity=item.quantity)
-        db.add(db_order_details)
-
-        menu_item = db.query(menu_items_models.MenuItems).filter(menu_items_models.MenuItems.id == item.item_id).first()
-        for ingredient in menu_item.ingredients:
-            ingredient.stock -= item.quantity
-            db.add(ingredient)
+        db_order_detail = models.OrderDetail(
+            order_id=db_order.id,
+            item_id=item.item_id,
+            quantity=item.quantity
+        )
+        db.add(db_order_detail)
 
     db.commit()
     return db_order

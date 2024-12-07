@@ -10,7 +10,7 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=customer_schema.Customer)
-def create_customer(customer: customer_schema.CustomerCreate, db: Session = Depends(get_db)):
+def create_customer(customer: customer_schema.CustomerBase, db: Session = Depends(get_db)):
     db_customer = customer_model.Customer(**customer.dict())
     db.add(db_customer)
     db.commit()

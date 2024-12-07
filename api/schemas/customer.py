@@ -17,7 +17,8 @@ class CustomerUpdate(BaseModel):
     address: Optional[str] = None
 
 class Customer(CustomerBase):
-    id: int
+    id: Optional[int] = None
 
     class ConfigDict:
         from_attributes = True
+

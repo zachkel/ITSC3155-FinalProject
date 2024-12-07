@@ -22,7 +22,7 @@ def update_menu_item(item_id: int, item: schemas.MenuItemUpdate, db: Session = D
     db_menu_item = db.query(models.MenuItems).filter(models.MenuItems.id == item_id).first()
     if db_menu_item is None:
         raise HTTPException(status_code=404, detail='Menu item not found')
-    for key, value in item.dict(exclude_unset=True).items():
+    for key, value in item.model_dump(exclude_unset=True).items():
         setattr(db_menu_item, key, value)
     db.commit()
     db.refresh(db_menu_item)

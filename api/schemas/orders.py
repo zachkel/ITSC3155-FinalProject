@@ -11,12 +11,15 @@ class OrderStatus(str, Enum):
     in_route = "in-route"
     cancelled = "cancelled"
 
+class OrderItemCreate(BaseModel):
+    item_id: int
+    quantity: int
+
 class OrderBase(BaseModel):
     customer_id: int
     tracking_number: str | None = None
     order_status: OrderStatus
-    total_price: Decimal | None = None
-
+    items: list[OrderItemCreate]
 
 class OrderCreate(OrderBase):
     pass
@@ -28,8 +31,9 @@ class OrderUpdate(BaseModel):
 
 class Order(OrderBase):
     order_id: int
+    total_price: Decimal
     order_date: Optional[datetime] = None
-    order_details: list[OrderDetail] = None
+    order_details: list[OrderDetail] = []
 
     class ConfigDict:
         from_attributes = True
