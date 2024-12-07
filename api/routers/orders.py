@@ -1,7 +1,6 @@
 from decimal import Decimal
-
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func
+from sqlalchemy import func, cast, Date
 from sqlalchemy.orm import Session
 from ..dependencies.database import get_db
 from ..models import orders as models
@@ -19,9 +18,11 @@ router = APIRouter(
 @router.post('/', response_model=schemas.Order)
 def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
     total_price = Decimal('0.00')
-    db_order_detail = models.Orders(item_id = order.item_id, quantity=order.quantity)
 
-    for item_id, quantity in order:
+    for item in order.items:
+        item_id = item.item_id
+        quantity = item.quantity
+
         menu_item = db.query(menu_items_models.MenuItems).filter(menu_items_models.MenuItems.id == item_id).first()
         if menu_item is None:
             raise HTTPException(status_code=404, detail=f'Menu item with ID {item_id} not found')
@@ -55,12 +56,16 @@ def read_all_orders(db: Session = Depends(get_db)):
 
 @router.get('/revenue/{date}', response_model=float)
 def get_revenue_by_date(date: datetime, db: Session = Depends(get_db)):
-    revenue = db.query(func.sum(models.Orders.total_price)).filter(models.Orders.order_date == date).scalar()
-    return revenue if revenue else 0.0
+    revenue = db.query(func.sum(models.Orders.total_price)).filter(
+        cast(models.Orders.order_date, Date) == date).scalar()
+    return revenue
 
 @router.get('/date-range', response_model=list[schemas.Order])
-def read_orders_by_date_range(start_date: datetime, end_date: datetime, db: Session = Depends(get_db)):
-    order = db.query(models.Orders).filter(models.Orders.order_date.between(start_date, end_date)).all()
+def read_orders_by_date_range(start_date: str, end_date: str, db: Session = Depends(get_db)):
+    start_date_obj = datetime.strptime(start_date, '%m/%d/%Y')
+    end_date_obj = datetime.strptime(end_date, '%m/%d/%Y')
+
+    order = db.query(models.Orders).filter(models.Orders.order_date.between(start_date_obj, end_date_obj)).all()
     if not order:
         raise HTTPException(status_code=404, detail='No orders found within the specified date range')
     return order
@@ -96,9 +101,9 @@ def delete_order(order_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/history/", response_model=list[schemas.Order])
-def get_order_history(costumer_id: int = None, db: Session = Depends(get_db)):
-    if costumer_id:
-        orders = db.query(models.Orders).filter(models.Orders.costumer_id == costumer_id).all()
+def get_order_history(customer_id: int = None, db: Session = Depends(get_db)):
+    if customer_id:
+        orders = db.query(models.Orders).filter(models.Orders.customer_id == customer_id).all()
     else:
         orders = db.query(models.Orders).all()
     if not orders:

@@ -5,12 +5,15 @@ from typing import Optional
 from pydantic import BaseModel
 from .order_details import OrderDetail
 
+class OrderList(BaseModel):
+    item_id: int
+    quantity: int
+
 class OrderBase(BaseModel):
     customer_id: int
     tracking_number: str | None = None
     order_status: str
-    item_id: int
-    quantity: int
+    items: list[OrderList]
 
 class OrderCreate(OrderBase):
     pass
@@ -25,8 +28,7 @@ class Order(OrderBase):
     total_price: Decimal
     order_date: Optional[datetime] = None
     order_details: list[OrderDetail] = []
-    item_id: Optional[int]
-    quantity: Optional[int]
+
 
     class ConfigDict:
         from_attributes = True

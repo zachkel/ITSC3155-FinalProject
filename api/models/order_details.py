@@ -10,5 +10,5 @@ class OrderDetail(Base):
     item_id = Column(Integer, ForeignKey("menu_items.id"), nullable=False)
     quantity = Column(Integer)
 
-    order = relationship("Orders", back_populates="order_details")
+    order = relationship("Orders", back_populates="items")
     menu_item = relationship("MenuItems")
