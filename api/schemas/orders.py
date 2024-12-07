@@ -25,6 +25,8 @@ class Order(OrderBase):
     total_price: Decimal
     order_date: Optional[datetime] = None
     order_details: list[OrderDetail] = []
+    item_id: Optional[int]
+    quantity: Optional[int]
 
     class ConfigDict:
         from_attributes = True

@@ -19,13 +19,14 @@ router = APIRouter(
 @router.post('/', response_model=schemas.Order)
 def create_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
     total_price = Decimal('0.00')
+    db_order_detail = models.Orders(item_id = order.item_id, quantity=order.quantity)
 
-    for item in order.items:
-        menu_item = db.query(menu_items_models.MenuItems).filter(menu_items_models.MenuItems.id == item.item_id).first()
+    for item_id, quantity in order:
+        menu_item = db.query(menu_items_models.MenuItems).filter(menu_items_models.MenuItems.id == item_id).first()
         if menu_item is None:
-            raise HTTPException(status_code=404, detail=f'Menu item with ID {item.item_id} not found')
+            raise HTTPException(status_code=404, detail=f'Menu item with ID {item_id} not found')
 
-        total_price += Decimal(str(menu_item.price)) * item.quantity
+        total_price += Decimal(str(menu_item.price)) * quantity
 
     db_order = models.Orders(
         customer_id=order.customer_id,
@@ -95,9 +96,9 @@ def delete_order(order_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/history/", response_model=list[schemas.Order])
-def get_order_history(user_id: int = None, db: Session = Depends(get_db)):
-    if user_id:
-        orders = db.query(models.Orders).filter(models.Orders.user_id == user_id).all()
+def get_order_history(costumer_id: int = None, db: Session = Depends(get_db)):
+    if costumer_id:
+        orders = db.query(models.Orders).filter(models.Orders.costumer_id == costumer_id).all()
     else:
         orders = db.query(models.Orders).all()
     if not orders:
