@@ -5,12 +5,6 @@ from typing import Optional
 from pydantic import BaseModel
 from .order_details import OrderDetail
 
-class OrderStatus(str, Enum):
-    pending = "pending"
-    completed = "completed"
-    in_route = "in-route"
-    cancelled = "cancelled"
-
 class OrderItemCreate(BaseModel):
     item_id: int
     quantity: int
@@ -18,7 +12,7 @@ class OrderItemCreate(BaseModel):
 class OrderBase(BaseModel):
     customer_id: int
     tracking_number: str | None = None
-    order_status: OrderStatus
+    order_status: str
     items: list[OrderItemCreate]
 
 class OrderCreate(OrderBase):
@@ -26,11 +20,11 @@ class OrderCreate(OrderBase):
 
 
 class OrderUpdate(BaseModel):
-    order_status: OrderStatus
+    order_status: str | None = None
 
 
 class Order(OrderBase):
-    order_id: int
+    id: Optional[int] = None
     total_price: Decimal
     order_date: Optional[datetime] = None
     order_details: list[OrderDetail] = []

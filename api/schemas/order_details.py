@@ -13,7 +13,7 @@ class OrderDetailUpdate(BaseModel):
     order_id: Optional[int] = None
 
 class OrderDetail(OrderDetailBase):
-    order_detail_id: int
+    id: Optional[int]
 
     class ConfigDict:
         from_attributes = True
