@@ -39,5 +39,5 @@ def delete_menu_item(item_id: int, db: Session = Depends(get_db)):
 
 @router.get('/search', response_model=list[schemas.MenuItem])
 def search_menu_items(q: str, db: Session = Depends(get_db)):
-    menu_items = db.query(models.MenuItems).filter(models.MenuItems.name.contains(q)).all()
+    menu_items = db.query(models.MenuItems).filter(models.MenuItems.food_category.contains(q)).all()
     return menu_items
