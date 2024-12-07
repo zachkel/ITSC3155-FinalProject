@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from sqlalchemy import Column, ForeignKey, Integer, String, DECIMAL, DATETIME
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -8,4 +10,6 @@ class Promotion(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     code = Column(String, unique=True, nullable=False)
-    expiration_date = Column(DATETIME, nullable=False)
+    discount_percent = Column(DECIMAL(5, 2), nullable=False)
+    start_date = Column(DATETIME, nullable=False)
+    end_date = Column(DATETIME, nullable=False)
