@@ -54,7 +54,7 @@ def read_all_orders(db: Session = Depends(get_db)):
 
 @router.get('/revenue/{date}', response_model=float)
 def get_revenue_by_date(date: datetime, db: Session = Depends(get_db)):
-    revenue = db.query(func.sum(models.Orders.price)).filter(models.Orders.order_date == date).scalar()
+    revenue = db.query(func.sum(models.Orders.total_price)).filter(models.Orders.order_date == date).scalar()
     return revenue if revenue else 0.0
 
 @router.get('/date-range', response_model=list[schemas.Order])
